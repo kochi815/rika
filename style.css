@@ -1,0 +1,180 @@
+/* --- 基本スタイル --- */
+body {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    text-align: center;
+    background-color: #fdf6e3;
+    color: #333;
+    margin: 0;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+h1 {
+    font-size: 2em;
+    color: #d35400;
+    margin-bottom: 20px;
+}
+
+#game-container {
+    width: 100%;
+    max-width: 500px;
+}
+
+/* --- 画面切り替え --- */
+.screen {
+    display: none; /* 基本は非表示 */
+}
+.screen.active {
+    display: block; /* activeクラスが付いたものを表示 */
+}
+
+/* --- モード選択画面 --- */
+#mode-select-screen h2 {
+    margin-bottom: 20px;
+}
+.mode-btn {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    font-size: 1.2em;
+    font-weight: 700;
+    padding: 12px 30px;
+    border-radius: 20px;
+    border: none;
+    color: white;
+    background-color: #27ae60;
+    cursor: pointer;
+    margin: 5px;
+    transition: background-color 0.2s, transform 0.1s;
+}
+.mode-btn:hover {
+    background-color: #2ecc71;
+}
+.mode-btn:active {
+    transform: scale(0.97);
+}
+.mode-btn.disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+
+/* --- バトル画面 --- */
+.character-area {
+    border: 3px solid #eee;
+    border-radius: 12px;
+    padding: 15px;
+    margin: 10px 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+#enemy-area { border-color: #e74c3c; }
+#player-area { border-color: #3498db; }
+
+.character-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.hp-bar-container {
+    height: 20px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #ccc;
+}
+
+.hp-bar {
+    height: 100%;
+    width: 100%;
+    border-radius: 8px;
+    transition: width 0.4s ease-in-out;
+}
+#enemy-hp-bar { background: linear-gradient(to right, #f44336, #ff7961); }
+#player-hp-bar { background: linear-gradient(to right, #4caf50, #81c784); }
+
+.character-display {
+    font-size: 4em;
+    margin: 10px 0;
+}
+
+#question-area {
+    margin: 20px 0;
+}
+
+#question {
+    font-size: 1.6em;
+    font-weight: 700;
+    color: #2c3e50;
+    min-height: 3em;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#answer-choices {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.choice-btn {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    font-size: 1.1em;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 2px solid #f39c12;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+.choice-btn:hover:not(:disabled) {
+    background-color: #fef9e7;
+}
+.choice-btn:disabled {
+    background-color: #eee;
+    border-color: #ccc;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+#info-area {
+    margin-top: 15px;
+}
+
+#battle-log {
+    font-size: 1.2em;
+    min-height: 1.5em;
+    font-weight: bold;
+    color: #c0392b;
+}
+
+#next-battle-btn {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    font-size: 1.1em;
+    font-weight: 700;
+    padding: 10px 30px;
+    margin-top: 10px;
+    border-radius: 20px;
+    border: none;
+    color: white;
+    background-color: #e67e22;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+#next-battle-btn:hover {
+    background-color: #d35400;
+}

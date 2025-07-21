@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>勉強バトルゲーム</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <h1>勉強バトルゲーム</h1>
+
+    <div id="game-container">
+
+        <div id="mode-select-screen" class="screen active">
+            <h2>どの問題にチャレンジする？</h2>
+            <button id="start-science-btn" class="mode-btn">🔬 中学受験 理科</button>
+            <button class="mode-btn disabled">🎌 中学受験 社会 (準備中)</button>
+        </div>
+        
+        <div id="battle-screen" class="screen">
+            <div id="enemy-area" class="character-area">
+                <div class="character-info">
+                    <span id="enemy-name" class="character-name"></span>
+                    <span class="character-hp-text">HP: <span id="enemy-hp"></span></span>
+                </div>
+                <div class="hp-bar-container">
+                    <div id="enemy-hp-bar" class="hp-bar"></div>
+                </div>
+                <div id="enemy-character" class="character-display"></div>
+            </div>
+
+            <div id="question-area">
+                <div id="question">問題はここに表示されます</div>
+                <div id="answer-choices">
+                    </div>
+            </div>
+
+            <div id="player-area" class="character-area">
+                <div id="player-character" class="character-display">😺</div>
+                <div class="hp-bar-container">
+                    <div id="player-hp-bar" class="hp-bar"></div>
+                </div>
+                 <div class="character-info">
+                    <span class="character-name">自分</span>
+                    <span class="character-hp-text">HP: <span id="player-hp"></span></span>
+                </div>
+            </div>
+
+            <div id="info-area">
+                <div id="battle-log">ようこそ！</div>
+                <button id="next-battle-btn" style="display: none;">次のバトルへ</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="problems.js"></script> <script src="game.js"></script>      </body>
+</html>
