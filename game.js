@@ -61,10 +61,7 @@ function setupBattle() {
     currentEnemy = enemyData[currentStage];
     currentEnemyMaxHP = currentEnemy.hp;
     currentEnemyHP = currentEnemyMaxHP;
-    
-    // 問題インデックスをリセット
-    currentProblemIndex = 0;
-    
+        
     // UIを更新
     updateUI();
     
