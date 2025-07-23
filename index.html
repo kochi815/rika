@@ -3,79 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>勉強ゲーム</title>
+    <title>ねこあつめ勉強ゲーム</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-
     <div id="game-container">
-
         <div id="home-screen" class="screen active">
             <h1>勉強ゲーム</h1>
-            <div id="player-status">
-                <div id="coin-display">所持コイン: <span id="coin-total">0</span> 🪙</div>
+            <div class="header-nav">
+                <button class="nav-btn" data-target="garden-screen">お庭へ</button>
+                <button class="nav-btn" data-target="encyclopedia-screen">ねこ図鑑</button>
             </div>
-
             <div class="section">
                 <h2>どの分野にチャレンジする？</h2>
                 <div id="field-buttons">
+                    <button class="field-btn selected" data-field="all">🔬 全分野</button>
                     <button class="field-btn" data-field="biology">🌱 生物</button>
                     <button class="field-btn" data-field="geology">🌍 地学</button>
                     <button class="field-btn" data-field="physics">💡 物理</button>
                     <button class="field-btn" data-field="chemistry">⚗️ 化学</button>
-                    <button class="field-btn" data-field="all">🔬 全分野</button>
                 </div>
             </div>
-
-            <div class="section">
-                <h2>何問チャレンジする？</h2>
-                <div id="q-count-buttons">
-                    <button class="q-count-btn" data-count="10">10問</button>
-                    <button class="q-count-btn selected" data-count="20">20問</button>
-                    <button class="q-count-btn" data-count="40">40問</button>
-                </div>
-            </div>
-            
-            <button id="start-quiz-btn" class="start-btn">クイズスタート！</button>
-            <hr class="divider">
-            <button id="start-review-btn" class="review-btn" disabled>❌ 間違えた問題に挑戦</button>
-
-            <div class="section">
-                <h3>獲得した称号</h3>
-                <div id="achievement-display">
-                    <p>まだ称号はありません</p>
-                </div>
-            </div>
+            <button id="start-quiz-btn" class="start-btn">10問チャレンジ！</button>
         </div>
-        
+
         <div id="quiz-screen" class="screen">
-            <div id="quiz-header">
-                <span id="quiz-progress">1 / 10</span>
-                <button id="hint-btn">ヒントを使う (🪙30)</button>
-            </div>
+            <div id="quiz-header"><span id="quiz-progress">1 / 10</span></div>
             <div id="question-area">
                 <div id="question">問題はここに表示されます</div>
                 <div id="answer-choices"></div>
             </div>
             <button id="quit-quiz-btn">ホームに戻る</button>
         </div>
+        
+        <div id="garden-screen" class="screen">
+            <div class="header-nav">
+                <button class="nav-btn" data-target="home-screen">ホームへ</button>
+                <button class="nav-btn" data-target="encyclopedia-screen">ねこ図鑑</button>
+            </div>
+            <h2>お庭</h2>
+            <div id="garden-area">
+                <div class="garden-slot" data-slot="0"><span class="slot-text">アイテムを置く</span></div>
+                <div class="garden-slot" data-slot="1"><span class="slot-text">アイテムを置く</span></div>
+            </div>
+            <h3>もちもの</h3>
+            <div id="inventory-area"></div>
+        </div>
+        
+        <div id="encyclopedia-screen" class="screen">
+            <div class="header-nav">
+                 <button class="nav-btn" data-target="home-screen">ホームへ</button>
+                 <button class="nav-btn" data-target="garden-screen">お庭へ</button>
+            </div>
+            <h2>ねこ図鑑</h2>
+            <div id="cat-grid"></div>
+        </div>
 
         <div id="result-modal" class="modal-container">
             <div class="modal-content">
-                <h2 id="result-title">結果発表</h2>
+                <h2 id="result-title">クイズ終了！</h2>
                 <p id="result-message"></p>
-                <p id="result-coins"></p>
-                <div id="new-achievement-area"></div>
-                <button id="close-result-btn">ホームに戻る</button>
+                <div id="result-item-area"></div>
+                <button id="close-result-btn">OK</button>
             </div>
         </div>
-
     </div>
 
     <script src="problems.js"></script>
+    <script src="cat_data.js"></script>
     <script src="game.js"></script>
 </body>
 </html>
