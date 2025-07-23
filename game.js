@@ -1,7 +1,6 @@
 // --- DOM要素の取得 ---
 const modeSelectScreen = document.getElementById('mode-select-screen');
 const battleScreen = document.getElementById('battle-screen');
-// 新しいボタンを取得
 const startBiologyBtn = document.getElementById('start-biology-btn');
 const startGeologyBtn = document.getElementById('start-geology-btn');
 const startPhysicsBtn = document.getElementById('start-physics-btn');
@@ -9,21 +8,44 @@ const startChemistryBtn = document.getElementById('start-chemistry-btn');
 const startAllBtn = document.getElementById('start-all-btn');
 const startReviewBtn = document.getElementById('start-review-btn');
 const scoreDisplay = document.getElementById('score-display');
-// (以下のDOM要素は変更なし)
 const enemyName = document.getElementById('enemy-name');
 const enemyHP = document.getElementById('enemy-hp');
-// ... (その他のDOM要素取得は省略)
+const enemyHPBar = document.getElementById('enemy-hp-bar');
+const enemyCharacter = document.getElementById('enemy-character');
+const playerHP = document.getElementById('player-hp');
+const playerHPBar = document.getElementById('player-hp-bar');
+const questionDiv = document.getElementById('question');
+const answerChoicesDiv = document.getElementById('answer-choices');
+const battleLog = document.getElementById('battle-log');
+const nextBattleBtn = document.getElementById('next-battle-btn');
+
+
+// --- 音声ファイルの読み込み ---
+const sounds = {
+    bgm: new Audio('sounds/bgm.mp3'),
+    correct: new Audio('sounds/correct.mp3'),
+    wrong: new Audio('sounds/wrong.mp3'),
+    victory: new Audio('sounds/victory.mp3')
+};
+sounds.bgm.loop = true;
+sounds.bgm.volume = 0.3;
+
 
 // --- ゲームの状態を管理する変数 ---
-let currentMode = ''; // 現在のゲームモード（'biology', 'review'など）
+let currentMode = '';
 let mistakeReviewList = [];
 let scores = {};
-// (その他の変数は変更なし)
 let currentProblems = [];
 let currentProblemIndex = 0;
-// ...
+let playerMaxHP = 100;
+let currentPlayerHP = playerMaxHP;
+let currentEnemy;
+let currentEnemyMaxHP;
+let currentEnemyHP;
+let currentStage = 0;
 
-// --- ✨ここから新機能の関数✨ ---
+
+// --- 新機能の関数 ---
 
 // ローカルストレージからデータを読み込む
 function loadData() {
@@ -31,9 +53,7 @@ function loadData() {
     if (savedMistakes) {
         mistakeReviewList = JSON.parse(savedMistakes);
     }
-
     const savedScores = localStorage.getItem('scores');
-    // scoresがなければ初期化
     if (savedScores) {
         scores = JSON.parse(savedScores);
     } else {
@@ -84,10 +104,10 @@ function updateScoreDisplay() {
     }
 }
 
-// --- ✨ここまで新機能の関数✨ ---
 
+// --- ゲームのメイン関数 ---
 
-// --- 初期化処理 ---
+// 初期化処理
 function init() {
     loadData();
     updateReviewButtonState();
@@ -112,30 +132,79 @@ function init() {
     });
 
     nextBattleBtn.addEventListener('click', () => {
-        // ... (変更なし)
+        currentStage++;
+        if (currentStage >= enemyData.length) {
+            showResult("🎉 全ステージクリア！おめでとう！ 🎉");
+        } else {
+            sounds.bgm.play().catch(e => console.log("BGMの再生にユーザー操作が必要です。"));
+            setupBattle();
+        }
     });
 }
 
-
-// --- ゲーム開始 ---
+// ゲーム開始
 function startGame(mode, problemSet, enemies) {
-    currentMode = mode; // ✨現在のモードを記録
-    // ... (以下のロジックはほぼ変更なし)
+    currentMode = mode;
+    sounds.bgm.play().catch(e => console.log("BGMの再生にユーザー操作が必要です。"));
+    
     currentProblems = [...problemSet].sort(() => Math.random() - 0.5);
-    // ... (画面切り替えなど)
+    currentStage = 0;
+    
+    modeSelectScreen.classList.remove('active');
+    battleScreen.classList.add('active');
+    
     setupBattle();
 }
 
+// バトル準備
+function setupBattle() {
+    currentPlayerHP = playerMaxHP;
+    currentEnemy = enemyData[currentStage];
+    currentEnemyMaxHP = currentEnemy.hp;
+    currentEnemyHP = currentEnemyMaxHP;
+    
+    updateUI();
+    nextQuestion();
+    
+    nextBattleBtn.style.display = 'none';
+    battleLog.textContent = `${currentEnemy.name} があらわれた！`;
+}
 
-// --- 回答処理 ---
+// 次の問題を表示
+function nextQuestion() {
+    if (currentProblemIndex >= currentProblems.length) {
+        currentProblemIndex = 0; // 問題をループさせる
+    }
+    
+    const problem = currentProblems[currentProblemIndex];
+    questionDiv.textContent = problem.q;
+    
+    answerChoicesDiv.innerHTML = '';
+    const choices = [problem.a, ...problem.d].sort(() => Math.random() - 0.5);
+    
+    choices.forEach(choice => {
+        const button = document.createElement('button');
+        button.textContent = choice;
+        button.className = 'choice-btn';
+        button.onclick = () => handleAnswer(choice, problem.a);
+        answerChoicesDiv.appendChild(button);
+    });
+}
+
+// 回答処理
 function handleAnswer(selectedAnswer, correctAnswer) {
-    const problem = currentProblems[currentProblemIndex]; // ✨現在の問題オブジェクトを取得
+    const buttons = answerChoicesDiv.querySelectorAll('.choice-btn');
+    buttons.forEach(btn => btn.disabled = true);
+    
+    const problem = currentProblems[currentProblemIndex];
     
     if (selectedAnswer === correctAnswer) {
-        // 正解の場合
-        // ... (効果音、ダメージ計算など)
+        sounds.correct.currentTime = 0;
+        sounds.correct.play();
+        const damage = Math.floor(Math.random() * 10) + 15;
+        currentEnemyHP -= damage;
+        battleLog.textContent = `✅ 正解！ ${currentEnemy.name}に ${damage} のダメージ！`;
 
-        // 復習リストから削除 (もしあれば)
         const mistakeIndex = mistakeReviewList.findIndex(p => p.q === problem.q);
         if (mistakeIndex > -1) {
             mistakeReviewList.splice(mistakeIndex, 1);
@@ -143,10 +212,12 @@ function handleAnswer(selectedAnswer, correctAnswer) {
             updateReviewButtonState();
         }
     } else {
-        // 不正解の場合
-        // ... (効果音、ダメージ計算など)
+        sounds.wrong.currentTime = 0;
+        sounds.wrong.play();
+        const damage = Math.floor(Math.random() * 5) + 10;
+        currentPlayerHP -= damage;
+        battleLog.textContent = `❌ 不正解... 自分に ${damage} のダメージ... 正解は「${correctAnswer}」`;
         
-        // 復習リストに追加 (重複しないように)
         if (!mistakeReviewList.some(p => p.q === problem.q)) {
             mistakeReviewList.push(problem);
             saveMistakes();
@@ -154,8 +225,10 @@ function handleAnswer(selectedAnswer, correctAnswer) {
         }
     }
     
-    // ✨スコアを更新
-    if (currentMode !== 'review' && currentMode !== 'all') { // 全分野と復習モードでは集計しない
+    if (currentMode !== 'review' && problem.field) {
+        if (!scores[problem.field]) { // 念の為、スコアオブジェクトに存在しない分野の場合の初期化
+            scores[problem.field] = { correct: 0, total: 0 };
+        }
         scores[problem.field].total++;
         if (selectedAnswer === correctAnswer) {
             scores[problem.field].correct++;
@@ -164,10 +237,44 @@ function handleAnswer(selectedAnswer, correctAnswer) {
         updateScoreDisplay();
     }
     
-    // ... (残りの処理は変更なし)
+    updateUI();
+    currentProblemIndex++;
+    
+    setTimeout(() => {
+        if (currentEnemyHP <= 0) {
+            sounds.victory.currentTime = 0;
+            sounds.victory.play();
+            battleLog.textContent = `🎉 ${currentEnemy.name} をたおした！ 🎉`;
+            nextBattleBtn.style.display = 'inline-block';
+            sounds.bgm.pause();
+        } else if (currentPlayerHP <= 0) {
+            showResult("😭 やられてしまった... 😭");
+        } else {
+            nextQuestion();
+        }
+    }, 1800);
 }
 
-// --- (その他の関数は大きな変更なし) ---
+// UI更新
+function updateUI() {
+    playerHP.textContent = Math.max(0, currentPlayerHP);
+    playerHPBar.style.width = `${(Math.max(0, currentPlayerHP) / playerMaxHP) * 100}%`;
+    
+    enemyName.textContent = `${currentEnemy.name} (Lv.${currentStage + 1})`;
+    enemyCharacter.textContent = currentEnemy.emoji;
+    enemyHP.textContent = Math.max(0, currentEnemyHP);
+    enemyHPBar.style.width = `${(Math.max(0, currentEnemyHP) / currentEnemyMaxHP) * 100}%`;
+}
+
+// 結果表示
+function showResult(message) {
+    sounds.bgm.pause();
+    sounds.bgm.currentTime = 0;
+    
+    battleScreen.classList.remove('active');
+    modeSelectScreen.classList.add('active');
+    alert(message);
+}
 
 // --- ゲームの実行開始 ---
 init();
