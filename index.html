@@ -17,8 +17,23 @@
 
         <div id="mode-select-screen" class="screen active">
             <h2>どの問題にチャレンジする？</h2>
-            <button id="start-science-btn" class="mode-btn">🔬 中学受験 理科</button>
-            <button class="mode-btn disabled">🎌 中学受験 社会 (準備中)</button>
+            <div id="mode-buttons-container">
+                <button id="start-biology-btn" class="mode-btn science-btn">🌱 生物</button>
+                <button id="start-geology-btn" class="mode-btn science-btn">🌍 地学</button>
+                <button id="start-physics-btn" class="mode-btn science-btn">💡 物理</button>
+                <button id="start-chemistry-btn" class="mode-btn science-btn">⚗️ 化学</button>
+                <button id="start-all-btn" class="mode-btn science-btn">🔬 全分野ランダム</button>
+            </div>
+            
+            <hr class="divider">
+            
+            <button id="start-review-btn" class="mode-btn review-btn" disabled>❌ 間違えた問題に挑戦</button>
+
+            <div id="score-board">
+                <h3>学習データ</h3>
+                <div id="score-display">
+                    </div>
+            </div>
         </div>
         
         <div id="battle-screen" class="screen">
