@@ -3,75 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>勉強バトルゲーム</title>
+    <title>勉強ゲーム</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <h1>勉強バトルゲーム</h1>
-
     <div id="game-container">
 
-        <div id="mode-select-screen" class="screen active">
-            <h2>どの問題にチャレンジする？</h2>
-            <div id="mode-buttons-container">
-                <button id="start-biology-btn" class="mode-btn science-btn">🌱 生物</button>
-                <button id="start-geology-btn" class="mode-btn science-btn">🌍 地学</button>
-                <button id="start-physics-btn" class="mode-btn science-btn">💡 物理</button>
-                <button id="start-chemistry-btn" class="mode-btn science-btn">⚗️ 化学</button>
-                <button id="start-all-btn" class="mode-btn science-btn">🔬 全分野ランダム</button>
+        <div id="home-screen" class="screen active">
+            <h1>勉強ゲーム</h1>
+            <div id="player-status">
+                <div id="coin-display">所持コイン: <span id="coin-total">0</span> 🪙</div>
+            </div>
+
+            <div class="section">
+                <h2>どの分野にチャレンジする？</h2>
+                <div id="field-buttons">
+                    <button class="field-btn" data-field="biology">🌱 生物</button>
+                    <button class="field-btn" data-field="geology">🌍 地学</button>
+                    <button class="field-btn" data-field="physics">💡 物理</button>
+                    <button class="field-btn" data-field="chemistry">⚗️ 化学</button>
+                    <button class="field-btn" data-field="all">🔬 全分野</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>何問チャレンジする？</h2>
+                <div id="q-count-buttons">
+                    <button class="q-count-btn" data-count="10">10問</button>
+                    <button class="q-count-btn selected" data-count="20">20問</button>
+                    <button class="q-count-btn" data-count="40">40問</button>
+                </div>
             </div>
             
+            <button id="start-quiz-btn" class="start-btn">クイズスタート！</button>
             <hr class="divider">
-            
-            <button id="start-review-btn" class="mode-btn review-btn" disabled>❌ 間違えた問題に挑戦</button>
+            <button id="start-review-btn" class="review-btn" disabled>❌ 間違えた問題に挑戦</button>
 
-            <div id="score-board">
-                <h3>学習データ</h3>
-                <div id="score-display">
-                    </div>
+            <div class="section">
+                <h3>獲得した称号</h3>
+                <div id="achievement-display">
+                    <p>まだ称号はありません</p>
+                </div>
             </div>
         </div>
         
-        <div id="battle-screen" class="screen">
-            <div id="enemy-area" class="character-area">
-                <div class="character-info">
-                    <span id="enemy-name" class="character-name"></span>
-                    <span class="character-hp-text">HP: <span id="enemy-hp"></span></span>
-                </div>
-                <div class="hp-bar-container">
-                    <div id="enemy-hp-bar" class="hp-bar"></div>
-                </div>
-                <div id="enemy-character" class="character-display"></div>
+        <div id="quiz-screen" class="screen">
+            <div id="quiz-header">
+                <span id="quiz-progress">1 / 10</span>
+                <button id="hint-btn">ヒントを使う (🪙30)</button>
             </div>
-
             <div id="question-area">
                 <div id="question">問題はここに表示されます</div>
-                <div id="answer-choices">
-                    </div>
+                <div id="answer-choices"></div>
             </div>
+            <button id="quit-quiz-btn">ホームに戻る</button>
+        </div>
 
-            <div id="player-area" class="character-area">
-                <div id="player-character" class="character-display">😺</div>
-                <div class="hp-bar-container">
-                    <div id="player-hp-bar" class="hp-bar"></div>
-                </div>
-                 <div class="character-info">
-                    <span class="character-name">自分</span>
-                    <span class="character-hp-text">HP: <span id="player-hp"></span></span>
-                </div>
-            </div>
-
-            <div id="info-area">
-                <div id="battle-log">ようこそ！</div>
-                <button id="next-battle-btn" style="display: none;">次のバトルへ</button>
+        <div id="result-modal" class="modal-container">
+            <div class="modal-content">
+                <h2 id="result-title">結果発表</h2>
+                <p id="result-message"></p>
+                <p id="result-coins"></p>
+                <div id="new-achievement-area"></div>
+                <button id="close-result-btn">ホームに戻る</button>
             </div>
         </div>
 
     </div>
 
-    <script src="problems.js"></script> <script src="game.js"></script>      </body>
+    <script src="problems.js"></script>
+    <script src="game.js"></script>
+</body>
 </html>
