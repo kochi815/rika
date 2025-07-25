@@ -137,6 +137,7 @@ h1 { color: var(--accent-color1); }
 #result-item-area { font-size: 1em; color: var(--accent-color1); font-weight: 700; margin-top: 15px; }
 #close-result-btn {
     width: 100%; padding: 12px; margin-top: 20px; font-size: 1.1em;
-    background-color: var(--accent-color2); color: var(--light-text);
+    background-color: var(--accent-color2); color: #ffffff; /* ← ここを変更しました */
     border: none; border-radius: 10px; cursor: pointer;
+    font-weight: 700; /* ← 文字を少し太くして見やすくしました */
 }

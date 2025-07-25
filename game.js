@@ -1,12 +1,15 @@
+// game.js
+
 // --- 初期化 ---
 document.addEventListener('DOMContentLoaded', () => {
+    // ゲームのインスタンスを作成して初期化
     new NekoAtsumeGame().init();
 });
 
 // --- ゲームクラス ---
 class NekoAtsumeGame {
     constructor() {
-        // ... (この部分は変更ありません)
+        // DOM要素のキャッシュ
         this.dom = {
             screens: document.querySelectorAll('.screen'),
             homeScreen: document.getElementById('home-screen'),
@@ -14,7 +17,7 @@ class NekoAtsumeGame {
             gardenScreen: document.getElementById('garden-screen'),
             encyclopediaScreen: document.getElementById('encyclopedia-screen'),
             shopScreen: document.getElementById('shop-screen'),
-            fieldButtons: document.getElementById('field-buttons'),
+            fieldButtonsContainer: document.getElementById('field-buttons'), // ★5. 修正: ID名変更
             startQuizBtn: document.getElementById('start-quiz-btn'),
             navButtons: document.querySelectorAll('.nav-btn'),
             quizProgress: document.getElementById('quiz-progress'),
@@ -31,6 +34,8 @@ class NekoAtsumeGame {
             shopItemGrid: document.getElementById('shop-item-grid'),
             coinTotal: document.getElementById('coin-total')
         };
+
+        // サウンドの読み込み
         this.sounds = {
             correct: new Audio('sounds/correct.mp3'),
             wrong: new Audio('sounds/wrong.mp3'),
@@ -42,6 +47,8 @@ class NekoAtsumeGame {
         };
         this.sounds.bgm.loop = true;
         this.sounds.bgm_sp.loop = true;
+
+        // ゲームの状態
         this.state = {};
         this.quizState = {};
     }
@@ -52,37 +59,31 @@ class NekoAtsumeGame {
         this.navigateTo('home-screen');
     }
 
-    // ★★★ ここから loadState 関数を賢いバージョンに置き換えます ★★★
     loadState() {
         const savedState = localStorage.getItem('nekoAtsumeGameState');
         
-        // デフォルトのセーブデータ構造
         const defaultState = {
             coins: 0,
             inventory: { "item001": 1 },
             placedItems: { "0": null, "1": null },
             discoveredCats: {},
-            visitingCats: {}
+            visitingCats: {}, // ★3,4. 修正: ここで初期化しておく
+            selectedField: 'all' // ★5. 修正: 選択中の分野をstateで管理
         };
 
         if (savedState) {
-            // 保存されたデータとデフォルトをマージ（合体）させる
-            // これにより、古いセーブデータに足りない項目があっても、デフォルト値で補われる
+            // ★4. 修正: 保存されたデータを、デフォルト値とマージして読み込む
             this.state = Object.assign({}, defaultState, JSON.parse(savedState));
         } else {
-            // 新規プレイヤーの場合は、デフォルト値をそのまま使う
             this.state = defaultState;
         }
-        // visitingCatsは保存しないので、常にリセット
-        this.state.visitingCats = {};
+        // ★4. 修正: visitingCatsを強制的に空にする処理を削除
     }
-    // ★★★ ここまでが新しい loadState 関数です ★★★
 
     saveState() {
         localStorage.setItem('nekoAtsumeGameState', JSON.stringify(this.state));
     }
 
-    // ... (以降の setupEventListeners から checkCatArrival までの関数は、前回から変更ありません)
     setupEventListeners() {
         this.dom.navButtons.forEach(btn => {
             btn.addEventListener('click', () => this.navigateTo(btn.dataset.target));
@@ -92,14 +93,16 @@ class NekoAtsumeGame {
             this.dom.resultModal.style.display = 'none';
             this.navigateTo('home-screen');
         });
-        this.dom.fieldButtons.addEventListener('click', e => {
-            if (e.target.classList.contains('field-btn')) {
-                if (this.dom.fieldButtons.querySelector('.selected')) {
-                    this.dom.fieldButtons.querySelector('.selected').classList.remove('selected');
-                }
-                e.target.classList.add('selected');
+
+        // ★5. 修正: 分野ボタンのクリック処理をstateに保存するように変更
+        this.dom.fieldButtonsContainer.addEventListener('click', e => {
+            const target = e.target.closest('.field-btn');
+            if (target) {
+                this.state.selectedField = target.dataset.field;
+                this.updateFieldButtonsUI();
             }
         });
+
         this.dom.gardenArea.addEventListener('click', e => {
             const slot = e.target.closest('.garden-slot');
             if (slot) {
@@ -109,6 +112,17 @@ class NekoAtsumeGame {
         this.dom.quitQuizBtn.addEventListener('click', () => {
             if (confirm("クイズを中断してホームに戻りますか？")) {
                 this.navigateTo('home-screen');
+            }
+        });
+    }
+
+    // ★5. 追加: 選択された分野ボタンの見た目を更新する関数
+    updateFieldButtonsUI() {
+        this.dom.fieldButtonsContainer.querySelectorAll('.field-btn').forEach(btn => {
+            if (btn.dataset.field === this.state.selectedField) {
+                btn.classList.add('selected');
+            } else {
+                btn.classList.remove('selected');
             }
         });
     }
@@ -126,6 +140,7 @@ class NekoAtsumeGame {
         if (screenId === 'home-screen') {
             this.sounds.bgm.play().catch(() => {});
             this.dom.coinTotal.textContent = this.state.coins;
+            this.updateFieldButtonsUI(); // ★5. 追加: ホーム画面表示時にボタンの見た目を更新
         }
         if (screenId === 'quiz-screen') this.sounds.bgm_sp.play().catch(() => {});
         if (screenId === 'garden-screen') {
@@ -143,18 +158,24 @@ class NekoAtsumeGame {
     }
 
     startQuiz() {
-        const selectedFieldBtn = this.dom.fieldButtons.querySelector('.selected');
-        if (!selectedFieldBtn) {
+        // ★5. 修正: stateから選択分野を取得
+        const field = this.state.selectedField;
+        if (!field) {
             alert('分野を選択してください。');
             return;
         }
-        const field = selectedFieldBtn.dataset.field;
         let problemSet = [];
         if (field === 'all') {
             problemSet = Object.values(allProblemSets.science.data).flat();
         } else {
             problemSet = allProblemSets.science.data[field];
         }
+
+        if (!problemSet || problemSet.length === 0) {
+             alert('この分野の問題はまだ準備中です！');
+             return;
+        }
+
         this.quizState = {
             problems: problemSet.sort(() => 0.5 - Math.random()).slice(0, 10),
             currentIndex: 0,
@@ -206,8 +227,8 @@ class NekoAtsumeGame {
     showResults() {
         let earnedCoins = 0;
         if (this.quizState.correctCount === 10) earnedCoins = 6;
-        else if (this.quizState.correctCount === 9) earnedCoins = 3;
-        else if (this.quizState.correctCount === 8) earnedCoins = 1;
+        else if (this.quizState.correctCount >= 8) earnedCoins = 3; // 8,9問正解でもコインゲット
+        else if (this.quizState.correctCount >= 6) earnedCoins = 1; // 6,7問正解でも少しゲット
 
         this.dom.resultMessage.textContent = `${this.quizState.problems.length}問中 ${this.quizState.correctCount}問 正解！`;
 
@@ -216,7 +237,7 @@ class NekoAtsumeGame {
             this.state.coins += earnedCoins;
             this.dom.resultItemArea.innerHTML = `<p>ごほうび：<strong>${earnedCoins}コイン</strong> を手に入れた！</p>`;
         } else {
-            this.dom.resultItemArea.innerHTML = `<p>ごほうびゲットならず…！(8問以上の正解でゲット)</p>`;
+            this.dom.resultItemArea.innerHTML = `<p>ごほうびゲットならず…！(6問以上の正解でゲット)</p>`;
         }
         
         this.saveState();
@@ -280,7 +301,7 @@ class NekoAtsumeGame {
                 itemDiv.title = ITEM_DATA[itemId].name + ' (クリックで片付ける)';
                 slot.appendChild(itemDiv);
             } else if (!visitingCatId) {
-                slot.innerHTML = '<span class.text">アイテムを置く</span>';
+                slot.innerHTML = '<span class="slot-text">アイテムを置く</span>';
             }
         });
     }
@@ -302,17 +323,18 @@ class NekoAtsumeGame {
     
     placeItem(itemId) {
         const emptySlotIndex = Object.keys(this.state.placedItems).find(slot => this.state.placedItems[slot] === null);
-        if (emptySlotIndex !== undefined) {
-            this.state.inventory[itemId]--;
-            this.state.placedItems[emptySlotIndex] = itemId;
-            this.sounds.getCoin.play();
-            this.checkCatArrival();
-            this.renderGarden();
-            this.renderInventory();
-            this.saveState();
-        } else {
+        if (emptySlotIndex == null) {
             alert("お庭にアイテムを置くスペースがありません。");
+            return;
         }
+
+        this.state.inventory[itemId]--;
+        this.state.placedItems[emptySlotIndex] = itemId;
+        this.sounds.getCoin.play();
+        this.checkCatArrival();
+        this.renderGarden();
+        this.renderInventory();
+        this.saveState();
     }
 
     removeItemFromGarden(slotIndex) {
@@ -320,7 +342,8 @@ class NekoAtsumeGame {
         if (itemId) {
             this.state.placedItems[slotIndex] = null;
             this.state.inventory[itemId]++;
-            this.state.visitingCats[slotIndex] = null;
+            // ★3. 修正: 猫がアイテムと一緒に消えないように、visitingCatsの削除はcheckCatArrivalに任せる
+            // this.state.visitingCats[slotIndex] = null; 
             this.renderGarden();
             this.renderInventory();
             this.saveState();
@@ -351,28 +374,42 @@ class NekoAtsumeGame {
     }
 
     checkCatArrival() {
-        this.state.visitingCats = {};
+        // ★3. 修正: visitingCatsをリセットするのではなく、条件に合わない猫を削除する方式に変更
         const placedItemIds = Object.values(this.state.placedItems).filter(id => id);
-        if (placedItemIds.length === 0) return;
 
+        // アイテムが置かれていないスロットにいる猫は帰る
+        for (const slotIndex in this.state.visitingCats) {
+            const catId = this.state.visitingCats[slotIndex];
+            if (!catId) continue;
+            
+            const placedItemId = this.state.placedItems[slotIndex];
+            if (!placedItemId || !CAT_DATA[catId].needs.includes(placedItemId) && CAT_DATA[catId].needs.length > 0) {
+                 this.state.visitingCats[slotIndex] = null;
+            }
+        }
+
+        // アイテムが置かれている空きスロットに、新しい猫が来るか判定
         Object.keys(this.state.placedItems).forEach(slotIndex => {
             const itemId = this.state.placedItems[slotIndex];
-            if (!itemId) return;
+            const isCatHere = this.state.visitingCats[slotIndex];
 
-            const potentialCats = Object.keys(CAT_DATA).filter(catId => {
-                const cat = CAT_DATA[catId];
-                return cat.needs.length === 0 || cat.needs.includes(itemId);
-            });
-            
-            if (potentialCats.length > 0) {
-                const chance = (ITEM_DATA[itemId].attract_level / 10) * 0.5;
-                if (Math.random() < chance) {
-                    const catId = potentialCats[Math.floor(Math.random() * potentialCats.length)];
-                    this.state.visitingCats[slotIndex] = catId;
-                    if (!this.state.discoveredCats[catId]) {
-                        this.sounds.meow[Math.floor(Math.random() * this.sounds.meow.length)].play();
-                        this.state.discoveredCats[catId] = true;
-                        setTimeout(() => alert(`新しいねこ「${CAT_DATA[catId].name}」が遊びに来ました！`), 500);
+            // アイテムが置かれていて、まだ猫がいないスロットなら
+            if (itemId && !isCatHere) {
+                const potentialCats = Object.keys(CAT_DATA).filter(catId => {
+                    const cat = CAT_DATA[catId];
+                    return cat.needs.length === 0 || cat.needs.includes(itemId);
+                });
+                
+                if (potentialCats.length > 0) {
+                    const chance = (ITEM_DATA[itemId].attract_level / 10) * 0.5;
+                    if (Math.random() < chance) {
+                        const catId = potentialCats[Math.floor(Math.random() * potentialCats.length)];
+                        this.state.visitingCats[slotIndex] = catId;
+                        if (!this.state.discoveredCats[catId]) {
+                            this.sounds.meow[Math.floor(Math.random() * this.sounds.meow.length)].play();
+                            this.state.discoveredCats[catId] = true;
+                            setTimeout(() => alert(`新しいねこ「${CAT_DATA[catId].name}」が遊びに来ました！`), 500);
+                        }
                     }
                 }
             }
