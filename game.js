@@ -39,7 +39,7 @@ class NekoAtsumeGame {
             wrong: new Audio('sounds/wrong.mp3'),
             getCoin: new Audio('sounds/get_coin.mp3'),
             getItem: new Audio('sounds/get_item.mp3'),
-            meow: [new Audio('sounds/cat_meow1.mp3'), new Audio('cat_meow2.mp3'), new Audio('sounds/cat_meow3.mp3')],
+            meow: [new Audio('sounds/cat_meow1.mp3'), new Audio('sounds/cat_meow2.mp3'), new Audio('sounds/cat_meow3.mp3')],
             bgm: new Audio('sounds/thinking.mp3'),
             bgm_sp: new Audio('sounds/thinkingtime_sp.mp3')
         };
