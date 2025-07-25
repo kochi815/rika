@@ -11,9 +11,11 @@
     <div id="game-container">
         <div id="home-screen" class="screen active">
             <h1>勉強ゲーム</h1>
+            <div id="player-status">コイン: <span id="coin-total">0</span> 🪙</div>
             <div class="header-nav">
                 <button class="nav-btn" data-target="garden-screen">お庭へ</button>
                 <button class="nav-btn" data-target="encyclopedia-screen">ねこ図鑑</button>
+                <button class="nav-btn" data-target="shop-screen">ショップ</button>
             </div>
             <div class="section">
                 <h2>どの分野にチャレンジする？</h2>
@@ -37,6 +39,12 @@
             <button id="quit-quiz-btn">ホームに戻る</button>
         </div>
         
+        <div id="shop-screen" class="screen">
+            <div class="header-nav"><button class="nav-btn" data-target="home-screen">ホームへ</button></div>
+            <h2>ショップ</h2>
+            <p>コインを使ってアイテムを買おう！</p>
+            <div id="shop-item-grid"></div>
+
         <div id="garden-screen" class="screen">
             <div class="header-nav">
                 <button class="nav-btn" data-target="home-screen">ホームへ</button>

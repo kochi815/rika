@@ -1,8 +1,7 @@
 // --- 初期化 ---
 document.addEventListener('DOMContentLoaded', () => {
-    // グローバルにアクセスできるよう、gameインスタンスをwindowに格納
-    window.game = new NekoAtsumeGame();
-    window.game.init();
+    // ゲームのインスタンスを作成して初期化
+    new NekoAtsumeGame().init();
 });
 
 // --- ゲームクラス ---
@@ -15,6 +14,7 @@ class NekoAtsumeGame {
             quizScreen: document.getElementById('quiz-screen'),
             gardenScreen: document.getElementById('garden-screen'),
             encyclopediaScreen: document.getElementById('encyclopedia-screen'),
+            shopScreen: document.getElementById('shop-screen'), // ショップ画面を追加
             fieldButtons: document.getElementById('field-buttons'),
             startQuizBtn: document.getElementById('start-quiz-btn'),
             navButtons: document.querySelectorAll('.nav-btn'),
@@ -28,7 +28,9 @@ class NekoAtsumeGame {
             resultMessage: document.getElementById('result-message'),
             resultItemArea: document.getElementById('result-item-area'),
             closeResultBtn: document.getElementById('close-result-btn'),
-            quitQuizBtn: document.getElementById('quit-quiz-btn') // quitQuizBtnもキャッシュする
+            quitQuizBtn: document.getElementById('quit-quiz-btn'),
+            shopItemGrid: document.getElementById('shop-item-grid'), // ショップのアイテムグリッド
+            coinTotal: document.getElementById('coin-total') // コイン表示エリア
         };
 
         // サウンドの読み込み
@@ -37,7 +39,7 @@ class NekoAtsumeGame {
             wrong: new Audio('sounds/wrong.mp3'),
             getCoin: new Audio('sounds/get_coin.mp3'),
             getItem: new Audio('sounds/get_item.mp3'),
-            meow: [new Audio('sounds/cat_meow1.mp3'), new Audio('sounds/cat_meow2.mp3'), new Audio('sounds/cat_meow3.mp3')],
+            meow: [new Audio('sounds/cat_meow1.mp3'), new Audio('cat_meow2.mp3'), new Audio('sounds/cat_meow3.mp3')],
             bgm: new Audio('sounds/thinking.mp3'),
             bgm_sp: new Audio('sounds/thinkingtime_sp.mp3')
         };
@@ -59,14 +61,15 @@ class NekoAtsumeGame {
         const savedState = localStorage.getItem('nekoAtsumeGameState');
         if (savedState) {
             this.state = JSON.parse(savedState);
-            // visitingCatsは保存しないので、毎回リセット
-            this.state.visitingCats = {}; 
+            this.state.visitingCats = {}; // visitingCatsは保存しないので、毎回リセット
         } else {
+            // 新規プレイヤーの初期状態
             this.state = {
-                inventory: { "item001": 1 }, // 初期アイテム
+                coins: 0, // コインを追加
+                inventory: { "item001": 1 },
                 placedItems: { "0": null, "1": null },
                 discoveredCats: {},
-                visitingCats: {} // 庭に来ている猫の状態
+                visitingCats: {}
             };
         }
     }
@@ -85,20 +88,22 @@ class NekoAtsumeGame {
             this.navigateTo('home-screen');
         });
         this.dom.fieldButtons.addEventListener('click', e => {
-            if(e.target.classList.contains('field-btn')){
-                if(this.dom.fieldButtons.querySelector('.selected')) {
+            if (e.target.classList.contains('field-btn')) {
+                if (this.dom.fieldButtons.querySelector('.selected')) {
                     this.dom.fieldButtons.querySelector('.selected').classList.remove('selected');
                 }
                 e.target.classList.add('selected');
             }
         });
+        // ★アイテム撤去のロジックを改善
         this.dom.gardenArea.addEventListener('click', e => {
-            if(e.target.classList.contains('garden-slot')){
-                this.removeItemFromGarden(e.target.dataset.slot);
+            const slot = e.target.closest('.garden-slot'); // クリックした場所から一番近いスロットを探す
+            if (slot) {
+                this.removeItemFromGarden(slot.dataset.slot);
             }
         });
-         this.dom.quitQuizBtn.addEventListener('click', () => {
-             if (confirm("クイズを中断してホームに戻りますか？")) {
+        this.dom.quitQuizBtn.addEventListener('click', () => {
+            if (confirm("クイズを中断してホームに戻りますか？")) {
                 this.navigateTo('home-screen');
             }
         });
@@ -109,12 +114,18 @@ class NekoAtsumeGame {
         this.sounds.bgm_sp.pause();
 
         this.dom.screens.forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
+        const targetScreen = document.getElementById(screenId);
+        if (targetScreen) {
+            targetScreen.classList.add('active');
+        }
 
-        if (screenId === 'home-screen') this.sounds.bgm.play().catch(()=>{});
-        if (screenId === 'quiz-screen') this.sounds.bgm_sp.play().catch(()=>{});
+        if (screenId === 'home-screen') {
+            this.sounds.bgm.play().catch(() => {});
+            this.dom.coinTotal.textContent = this.state.coins; // コイン数を更新
+        }
+        if (screenId === 'quiz-screen') this.sounds.bgm_sp.play().catch(() => {});
         if (screenId === 'garden-screen') {
-            this.sounds.bgm.play().catch(()=>{});
+            this.sounds.bgm.play().catch(() => {});
             this.checkCatArrival();
             this.renderGarden();
             this.renderInventory();
@@ -122,12 +133,15 @@ class NekoAtsumeGame {
         if (screenId === 'encyclopedia-screen') {
             this.renderEncyclopedia();
         }
+        if (screenId === 'shop-screen') {
+            this.renderShop(); // ショップ画面に遷移した時にショップを描画
+        }
     }
 
     // --- クイズ関連 ---
     startQuiz() {
         const selectedFieldBtn = this.dom.fieldButtons.querySelector('.selected');
-        if(!selectedFieldBtn) {
+        if (!selectedFieldBtn) {
             alert('分野を選択してください。');
             return;
         }
@@ -148,7 +162,7 @@ class NekoAtsumeGame {
     }
 
     displayQuestion() {
-        if(this.quizState.currentIndex >= this.quizState.problems.length) return;
+        if (this.quizState.currentIndex >= this.quizState.problems.length) return;
         const q = this.quizState.problems[this.quizState.currentIndex];
         this.dom.quizProgress.textContent = `問題 ${this.quizState.currentIndex + 1} / ${this.quizState.problems.length}`;
         this.dom.questionDiv.textContent = q.q;
@@ -187,21 +201,60 @@ class NekoAtsumeGame {
     }
     
     showResults() {
+        // ★新しいコイン獲得ルールに変更
+        let earnedCoins = 0;
+        if (this.quizState.correctCount === 10) earnedCoins = 6;
+        else if (this.quizState.correctCount === 9) earnedCoins = 3;
+        else if (this.quizState.correctCount === 8) earnedCoins = 1;
+
         this.dom.resultMessage.textContent = `${this.quizState.problems.length}問中 ${this.quizState.correctCount}問 正解！`;
-        
-        let gotItem = null;
-        if (this.quizState.correctCount >= 5) {
-            this.sounds.getItem.play();
-            const itemIds = Object.keys(ITEM_DATA);
-            gotItem = itemIds[Math.floor(Math.random() * itemIds.length)];
-            this.state.inventory[gotItem] = (this.state.inventory[gotItem] || 0) + 1;
-            this.dom.resultItemArea.innerHTML = `<p>ごほうび：<strong>${ITEM_DATA[gotItem].name}</strong> を手に入れた！</p>`;
+
+        if (earnedCoins > 0) {
+            this.sounds.getCoin.play();
+            this.state.coins += earnedCoins;
+            this.dom.resultItemArea.innerHTML = `<p>ごほうび：<strong>${earnedCoins}コイン</strong> を手に入れた！</p>`;
         } else {
-            this.dom.resultItemArea.innerHTML = `<p>ごほうびゲットならず…！(5問以上の正解でゲット)</p>`;
+            this.dom.resultItemArea.innerHTML = `<p>ごほうびゲットならず…！(8問以上の正解でゲット)</p>`;
         }
         
         this.saveState();
         this.dom.resultModal.style.display = 'flex';
+    }
+
+    // --- ショップ関連 (新設) ---
+    renderShop() {
+        this.dom.shopItemGrid.innerHTML = '';
+        for (const itemId in ITEM_DATA) {
+            const item = ITEM_DATA[itemId];
+            const card = document.createElement('div');
+            card.className = 'shop-item';
+            card.innerHTML = `
+                <div class="shop-item-img" style="background-image: url('images/${itemId}.png')"></div>
+                <div class="shop-item-name">${item.name}</div>
+                <p class="shop-item-desc">${item.description}</p>
+                <div class="shop-item-price">${item.price} 🪙</div>
+                <button class="buy-btn" data-item-id="${itemId}" ${this.state.coins < item.price ? 'disabled' : ''}>買う</button>
+            `;
+            this.dom.shopItemGrid.appendChild(card);
+        }
+        this.dom.shopItemGrid.querySelectorAll('.buy-btn').forEach(btn => {
+            btn.onclick = () => this.buyItem(btn.dataset.itemId);
+        });
+    }
+
+    buyItem(itemId) {
+        const itemPrice = ITEM_DATA[itemId].price;
+        if (this.state.coins >= itemPrice) {
+            this.state.coins -= itemPrice;
+            this.state.inventory[itemId] = (this.state.inventory[itemId] || 0) + 1;
+            this.sounds.getItem.play();
+            alert(`${ITEM_DATA[itemId].name} を購入しました！`);
+            this.saveState();
+            this.renderShop(); // ボタンの状態を更新
+            this.dom.coinTotal.textContent = this.state.coins;
+        } else {
+            alert("コインが足りません！");
+        }
     }
 
     // --- お庭・図鑑関連 ---
@@ -210,7 +263,6 @@ class NekoAtsumeGame {
             const slotIndex = slot.dataset.slot;
             const itemId = this.state.placedItems[slotIndex];
             slot.innerHTML = '';
-            slot.style.backgroundImage = '';
 
             const visitingCatId = this.state.visitingCats[slotIndex];
             if (visitingCatId) {
@@ -222,15 +274,11 @@ class NekoAtsumeGame {
             }
 
             if (itemId) {
-                const itemImg = document.createElement('div');
-                itemImg.style.backgroundImage = `url(images/${itemId}.png)`;
-                itemImg.style.width = '60%';
-                itemImg.style.height = '60%';
-                itemImg.style.backgroundSize = 'contain';
-                itemImg.style.backgroundRepeat = 'no-repeat';
-                itemImg.style.backgroundPosition = 'center';
-                itemImg.title = ITEM_DATA[itemId].name + ' (クリックで片付ける)';
-                slot.appendChild(itemImg);
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'item-in-slot';
+                itemDiv.style.backgroundImage = `url(images/${itemId}.png)`;
+                itemDiv.title = ITEM_DATA[itemId].name + ' (クリックで片付ける)';
+                slot.appendChild(itemDiv);
             } else if (!visitingCatId) {
                 slot.innerHTML = '<span class="slot-text">アイテムを置く</span>';
             }
@@ -243,8 +291,9 @@ class NekoAtsumeGame {
             if (this.state.inventory[itemId] > 0) {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'inventory-item';
-                itemDiv.textContent = `${ITEM_DATA[itemId].name} x${this.state.inventory[itemId]}`;
+                itemDiv.textContent = `x${this.state.inventory[itemId]}`;
                 itemDiv.style.backgroundImage = `url(images/${itemId}.png)`;
+                itemDiv.title = ITEM_DATA[itemId].name;
                 itemDiv.onclick = () => this.placeItem(itemId);
                 this.dom.inventoryArea.appendChild(itemDiv);
             }
@@ -271,7 +320,7 @@ class NekoAtsumeGame {
         if (itemId) {
             this.state.placedItems[slotIndex] = null;
             this.state.inventory[itemId]++;
-            this.state.visitingCats[slotIndex] = null; // 猫も一緒にいなくなる
+            this.state.visitingCats[slotIndex] = null;
             this.renderGarden();
             this.renderInventory();
             this.saveState();
@@ -304,7 +353,6 @@ class NekoAtsumeGame {
     checkCatArrival() {
         this.state.visitingCats = {};
         const placedItemIds = Object.values(this.state.placedItems).filter(id => id);
-        
         if (placedItemIds.length === 0) return;
 
         Object.keys(this.state.placedItems).forEach(slotIndex => {
@@ -317,7 +365,7 @@ class NekoAtsumeGame {
             });
             
             if (potentialCats.length > 0) {
-                const chance = (ITEM_DATA[itemId].attract_level / 10) * 0.5; // 出現率を調整
+                const chance = (ITEM_DATA[itemId].attract_level / 10) * 0.5;
                 if (Math.random() < chance) {
                     const catId = potentialCats[Math.floor(Math.random() * potentialCats.length)];
                     this.state.visitingCats[slotIndex] = catId;

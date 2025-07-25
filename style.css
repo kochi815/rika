@@ -69,20 +69,15 @@ h1 { color: var(--accent-color1); }
 .choice-btn.wrong { background-color: #e74c3c; color: white; border-color: #c0392b; }
 .choice-btn:disabled { opacity: 0.7; }
 
-/* お庭画面 */
-#garden-area { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; min-height: 150px; background: #c8e6c9; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
-.garden-slot {
-    border: 2px dashed #a5d6a7; border-radius: 10px;
-    display: flex; justify-content: center; align-items: center;
-    background-size: contain; background-position: center; background-repeat: no-repeat;
-    position: relative;
-}
-.garden-slot .cat-in-slot { width: 80%; height: 80%; object-fit: contain; }
-.garden-slot .slot-text { color: #555; font-weight: 700; }
+/* お庭画面の修正 */
+#garden-area { /* ... */ }
+.garden-slot { /* ... */ position: relative; cursor: pointer; } /* ★ cursor: pointerを追加 */
+.garden-slot .cat-in-slot { /* ... */ pointer-events: none; } /* ★ 猫がクリックの邪魔をしないように */
+.garden-slot .item-in-slot { /* ... */ pointer-events: none; } /* ★ アイテム画像も同様 */
 
-#inventory-area { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px; background: #fafafa; border-radius: 10px; }
-.inventory-item { border: 2px solid #ccc; border-radius: 8px; padding: 5px; cursor: grab; text-align: center; }
-.inventory-item:active { cursor: grabbing; }
+/* もちものエリアの修正 */
+.inventory-item { /* ... */ cursor: pointer; } /* ★ pointerをgrabから変更 */
+.inventory-item:active { transform: scale(0.95); } /* ★ grabbingから変更 */
 
 /* ねこ図鑑 */
 #cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -90,6 +85,46 @@ h1 { color: var(--accent-color1); }
 .cat-card.locked { background-color: #f5f5f5; color: #bbb; }
 .cat-card-name { font-weight: bold; }
 .cat-card-img { width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 3em; }
+
+/* ★ここからショップのデザインを丸ごと追加★ */
+#shop-item-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+.shop-item {
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 10px;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.shop-item-img {
+    width: 80px;
+    height: 80px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-bottom: 10px;
+}
+.shop-item-name { font-weight: 900; }
+.shop-item-desc { font-size: 0.8em; color: #555; min-height: 3em; }
+.shop-item-price { font-weight: bold; color: var(--accent-color1); margin: 5px 0; }
+.buy-btn {
+    width: 100%;
+    border: none;
+    background-color: var(--accent-color2);
+    color: white;
+    padding: 8px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.buy-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+/* ★ここまで追加★ */
 
 /* 結果モーダル */
 .modal-container { /* 以前のものを流用 */ }
