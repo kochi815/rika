@@ -36,8 +36,18 @@ h1 { color: var(--accent-color1); }
 .screen { display: none; }
 .screen.active { display: block; }
 
+#player-status {
+    background-color: #f7f9f9;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    font-weight: 700;
+}
+
 .header-nav { display: flex; justify-content: space-between; margin-bottom: 20px; }
-.nav-btn { background-color: #eee; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+.nav-btn { background-color: #eee; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: background-color 0.2s; }
+.nav-btn:hover { background-color: #ddd; }
 
 .section { margin-bottom: 20px; }
 
@@ -68,16 +78,32 @@ h1 { color: var(--accent-color1); }
 .choice-btn.correct { background-color: #2ecc71; color: white; border-color: #27ae60; }
 .choice-btn.wrong { background-color: #e74c3c; color: white; border-color: #c0392b; }
 .choice-btn:disabled { opacity: 0.7; }
+#quit-quiz-btn { margin-top: 20px; background: none; border: 1px solid #ccc; border-radius: 8px; padding: 8px 15px; cursor: pointer; }
 
-/* お庭画面の修正 */
-#garden-area { /* ... */ }
-.garden-slot { /* ... */ position: relative; cursor: pointer; } /* ★ cursor: pointerを追加 */
-.garden-slot .cat-in-slot { /* ... */ pointer-events: none; } /* ★ 猫がクリックの邪魔をしないように */
-.garden-slot .item-in-slot { /* ... */ pointer-events: none; } /* ★ アイテム画像も同様 */
+/* お庭画面 */
+#garden-area { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; min-height: 150px; background: #c8e6c9; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+.garden-slot {
+    border: 2px dashed #a5d6a7; border-radius: 10px;
+    display: flex; justify-content: center; align-items: center;
+    background-size: contain; background-position: center; background-repeat: no-repeat;
+    position: relative;
+    cursor: pointer;
+    min-height: 120px;
+}
+.garden-slot:hover { border-color: #81c784; }
+.cat-in-slot { width: 80%; height: 80%; object-fit: contain; pointer-events: none; position: absolute; }
+.item-in-slot { width: 60%; height: 60%; background-size: contain; background-position: center; background-repeat: no-repeat; pointer-events: none; z-index: -1; }
+.slot-text { color: #555; font-weight: 700; pointer-events: none; }
 
-/* もちものエリアの修正 */
-.inventory-item { /* ... */ cursor: pointer; } /* ★ pointerをgrabから変更 */
-.inventory-item:active { transform: scale(0.95); } /* ★ grabbingから変更 */
+/* もちものエリア */
+#inventory-area { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px; background: #fafafa; border-radius: 10px; min-height: 50px; }
+.inventory-item {
+    border: 2px solid #ccc; border-radius: 8px; padding: 5px;
+    cursor: pointer; text-align: right; width: 60px; height: 60px;
+    background-size: 60%; background-position: center; background-repeat: no-repeat;
+    font-size: 0.8em; font-weight: bold;
+}
+.inventory-item:active { transform: scale(0.95); }
 
 /* ねこ図鑑 */
 #cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -86,45 +112,31 @@ h1 { color: var(--accent-color1); }
 .cat-card-name { font-weight: bold; }
 .cat-card-img { width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 3em; }
 
-/* ★ここからショップのデザインを丸ごと追加★ */
-#shop-item-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 20px;
-}
-.shop-item {
-    border: 1px solid #eee;
-    border-radius: 12px;
-    padding: 10px;
-    background: #fafafa;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.shop-item-img {
-    width: 80px;
-    height: 80px;
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    margin-bottom: 10px;
-}
+/* ショップのデザイン */
+#shop-item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+.shop-item { border: 1px solid #eee; border-radius: 12px; padding: 10px; background: #fafafa; display: flex; flex-direction: column; align-items: center; }
+.shop-item-img { width: 80px; height: 80px; background-size: contain; background-position: center; background-repeat: no-repeat; margin-bottom: 10px; }
 .shop-item-name { font-weight: 900; }
-.shop-item-desc { font-size: 0.8em; color: #555; min-height: 3em; }
+.shop-item-desc { font-size: 0.8em; color: #555; min-height: 3em; margin: 5px 0; }
 .shop-item-price { font-weight: bold; color: var(--accent-color1); margin: 5px 0; }
-.buy-btn {
-    width: 100%;
-    border: none;
-    background-color: var(--accent-color2);
-    color: white;
-    padding: 8px;
-    border-radius: 8px;
-    font-weight: 700;
-    cursor: pointer;
-}
+.buy-btn { width: 100%; border: none; background-color: var(--accent-color2); color: white; padding: 8px; border-radius: 8px; font-weight: 700; cursor: pointer; }
 .buy-btn:disabled { background-color: #ccc; cursor: not-allowed; }
-/* ★ここまで追加★ */
 
 /* 結果モーダル */
-.modal-container { /* 以前のものを流用 */ }
+.modal-container {
+    display: none; position: fixed; z-index: 10; left: 0; top: 0;
+    width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);
+    justify-content: center; align-items: center;
+}
+.modal-content {
+    background-color: #fff; padding: 30px; border-radius: 15px;
+    width: 80%; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+#result-title { font-size: 1.5em; color: var(--primary-text); margin-top: 0; }
+#result-message { font-size: 1.2em; font-weight: bold; }
+#result-item-area { font-size: 1em; color: var(--accent-color1); font-weight: 700; margin-top: 15px; }
+#close-result-btn {
+    width: 100%; padding: 12px; margin-top: 20px; font-size: 1.1em;
+    background-color: var(--accent-color2); color: var(--light-text);
+    border: none; border-radius: 10px; cursor: pointer;
+}
