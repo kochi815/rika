@@ -356,7 +356,7 @@ class NekoAtsumeGame {
             } else {
                 card.innerHTML = `
                     <div class="cat-card-img">？</div>
-                    <div class.cat-card-name>？？？？</div>
+                    <div class="cat-card-name>？？？？</div>
                 `;
             }
             this.dom.catGrid.appendChild(card);
