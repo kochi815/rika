@@ -76,54 +76,65 @@ class NekoAtsumeGame {
         localStorage.setItem('nekoAtsumeGameState', JSON.stringify(this.state));
     }
 
-    setupEventListeners() {
-        this.dom.navButtons.forEach(btn => {
-            btn.addEventListener('click', () => this.navigateTo(btn.dataset.target));
-        });
-        this.dom.startQuizBtn.addEventListener('click', () => this.startQuiz());
-        this.dom.closeResultBtn.addEventListener('click', () => {
-            this.dom.resultModal.style.display = 'none';
+// 変更後
+setupEventListeners() {
+    this.dom.navButtons.forEach(btn => {
+        btn.addEventListener('click', () => this.navigateTo(btn.dataset.target));
+    });
+    this.dom.startQuizBtn.addEventListener('click', () => this.startQuiz());
+    this.dom.closeResultBtn.addEventListener('click', () => {
+        this.dom.resultModal.style.display = 'none';
+        this.navigateTo('home-screen');
+    });
+
+    this.dom.closeCatDetailBtn.addEventListener('click', () => {
+        this.dom.catDetailModal.style.display = 'none';
+    });
+
+    this.dom.fieldButtonsContainer.addEventListener('click', e => {
+        const target = e.target.closest('.field-btn');
+        if (target) {
+            this.state.selectedField = target.dataset.field;
+            this.updateFieldButtonsUI();
+        }
+    });
+
+    this.dom.gardenArea.addEventListener('click', e => {
+        const slot = e.target.closest('.garden-slot');
+        if (slot) this.removeItemFromGarden(slot.dataset.slot);
+    });
+
+    this.dom.inventoryArea.addEventListener('click', e => {
+        const target = e.target.closest('.inventory-item');
+        if (target?.dataset.itemId) this.placeItem(target.dataset.itemId);
+    });
+
+    this.dom.catGrid.addEventListener('click', e => {
+        const target = e.target.closest('.cat-card');
+        if (target?.dataset.catId) {
+            this.showCatDetails(target.dataset.catId);
+        }
+    });
+
+    this.dom.quitQuizBtn.addEventListener('click', () => {
+        if (confirm("クイズを中断してホームに戻りますか？")) {
             this.navigateTo('home-screen');
-        });
+        }
+    });
 
-        // ▼▼▼ ねこ詳細モーダルを閉じる処理を追加 ▼▼▼
-        this.dom.closeCatDetailBtn.addEventListener('click', () => {
-            this.dom.catDetailModal.style.display = 'none';
-        });
-
-        this.dom.fieldButtonsContainer.addEventListener('click', e => {
-            const target = e.target.closest('.field-btn');
-            if (target) {
-                this.state.selectedField = target.dataset.field;
-                this.updateFieldButtonsUI();
-            }
-        });
-
-        this.dom.gardenArea.addEventListener('click', e => {
-            const slot = e.target.closest('.garden-slot');
-            if (slot) this.removeItemFromGarden(slot.dataset.slot);
-        });
-
-        this.dom.inventoryArea.addEventListener('click', e => {
-            const target = e.target.closest('.inventory-item');
-            if (target?.dataset.itemId) this.placeItem(target.dataset.itemId);
-        });
-
-        // ▼▼▼ ねこ図鑑のカードをクリックしたときの処理を追加 ▼▼▼
-        this.dom.catGrid.addEventListener('click', e => {
-            const target = e.target.closest('.cat-card');
-            if (target?.dataset.catId) {
-                this.showCatDetails(target.dataset.catId);
-            }
-        });
-
-        this.dom.quitQuizBtn.addEventListener('click', () => {
-            if (confirm("クイズを中断してホームに戻りますか？")) {
-                this.navigateTo('home-screen');
-            }
-        });
-    }
-
+    // ▼▼▼ アコーディオン機能のイベントリスナーを追加 ▼▼▼
+    document.querySelector('.accordion-button').addEventListener('click', function() {
+        this.classList.toggle('active');
+        const content = this.nextElementSibling;
+        if (content.style.maxHeight) {
+            content.style.maxHeight = null;
+            content.style.padding = "0 15px"; // 閉じる時にパディングも消す
+        } else {
+            content.style.maxHeight = content.scrollHeight + "px";
+            content.style.padding = "10px 15px"; // 開く時にパディングを追加
+        }
+    });
+}
     updatePlayerStatus() {
         this.dom.coinTotal.textContent = this.state.coins;
     }
