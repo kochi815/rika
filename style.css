@@ -208,3 +208,38 @@ h1 { color: var(--accent-color1); }
     border: none; border-radius: 10px; cursor: pointer;
     font-weight: 700;
 }
+
+/* ごほうびのルール表 */
+#reward-rules {
+    background-color: #fff8e1;
+    border: 2px dashed var(--accent-color1);
+    border-radius: 12px;
+    padding: 10px 15px;
+    margin: 25px 0;
+}
+#reward-rules h3 {
+    margin-top: 5px;
+    color: var(--accent-color1);
+}
+#reward-rules table {
+    width: 100%;
+    text-align: left;
+    border-collapse: collapse;
+}
+#reward-rules th, #reward-rules td {
+    padding: 6px 0;
+    border-bottom: 1px solid #ffeccf;
+}
+#reward-rules tr:last-child th,
+#reward-rules tr:last-child td {
+    border-bottom: none;
+}
+#reward-rules th {
+    width: 45%;
+}
+.coin-reward {
+    font-weight: 900;
+    font-size: 1.2em;
+    color: var(--accent-color1);
+    padding-right: 4px;
+}

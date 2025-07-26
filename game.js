@@ -231,27 +231,34 @@ class NekoAtsumeGame {
         }, 1200);
     }
     
-    showResults() {
-        let earnedCoins = 0;
-        if (this.quizState.correctCount === 10) earnedCoins = 6;
-        else if (this.quizState.correctCount >= 8) earnedCoins = 3;
-        else if (this.quizState.correctCount >= 6) earnedCoins = 1;
-
-        this.dom.resultMessage.textContent = `${this.quizState.problems.length}問中 ${this.quizState.correctCount}問 正解！`;
-
-        if (earnedCoins > 0) {
-            this.sounds.getCoin.play();
-            this.state.coins += earnedCoins;
-            this.dom.resultItemArea.innerHTML = `<p>ごほうび：<strong>${earnedCoins}コイン</strong> を手に入れた！</p>`;
-        } else {
-            this.dom.resultItemArea.innerHTML = `<p>ごほうびゲットならず…！(6問以上の正解でゲット)</p>`;
-        }
-        
-        this.updatePlayerStatus();
-        this.saveState();
-        this.dom.resultModal.style.display = 'flex';
+showResults() {
+    let earnedCoins = 0;
+    // ★★★ 新しいコイン報酬のルール ★★★
+    if (this.quizState.correctCount === 10) {      // 10問正解
+        earnedCoins = 10;
+    } else if (this.quizState.correctCount === 9) { // 9問正解
+        earnedCoins = 5;
+    } else if (this.quizState.correctCount >= 7) { // 7-8問正解
+        earnedCoins = 2;
+    } else if (this.quizState.correctCount >= 5) { // 5-6問正解
+        earnedCoins = 1;
     }
 
+    this.dom.resultMessage.textContent = `${this.quizState.problems.length}問中 ${this.quizState.correctCount}問 正解！`;
+
+    if (earnedCoins > 0) {
+        this.sounds.getCoin.play();
+        this.state.coins += earnedCoins;
+        this.dom.resultItemArea.innerHTML = `<p>ごほうび：<strong>${earnedCoins}コイン</strong> を手に入れた！</p>`;
+    } else {
+        // ★★★ メッセージを少し変更 ★★★
+        this.dom.resultItemArea.innerHTML = `<p>ごほうびゲットならず…！(5問以上の正解でゲット)</p>`;
+    }
+    
+    this.updatePlayerStatus();
+    this.saveState();
+    this.dom.resultModal.style.display = 'flex';
+}
     renderShop() {
         this.dom.shopItemGrid.innerHTML = '';
         for (const [itemId, item] of Object.entries(ITEM_DATA)) {
