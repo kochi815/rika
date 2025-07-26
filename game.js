@@ -399,15 +399,18 @@ showResults() {
     }
     
     // ▼▼▼ ねこの詳細を表示する関数を丸ごと追加 ▼▼▼
-    showCatDetails(catId) {
-        const cat = CAT_DATA[catId];
-        const discovered = this.state.discoveredCats[catId];
+showCatDetails(catId) {
+    const cat = CAT_DATA[catId];
+    const discovered = this.state.discoveredCats[catId];
 
-        if (!discovered) return; // まだ見つけていない猫は表示しない
+    if (!discovered) return; // まだ見つけていない猫は表示しない
 
-        // モーダルに猫の情報をセット
-        this.dom.catDetailImg.innerHTML = `<img src="images/${catId}.png">`;
-        this.dom.catDetailName.textContent = cat.name;
+    // ▼▼▼ ランダムな猫の鳴き声を再生する処理を追加 ▼▼▼
+    this.sounds.meow[Math.floor(Math.random() * this.sounds.meow.length)].play();
+
+    // モーダルに猫の情報をセット
+    this.dom.catDetailImg.innerHTML = `<img src="images/${catId}.png">`;
+    this.dom.catDetailName.textContent = cat.name;
         this.dom.catDetailDescription.textContent = cat.description;
 
         // 好きなものを表示
