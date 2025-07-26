@@ -91,8 +91,16 @@ h1 { color: var(--accent-color1); }
     min-height: 120px;
 }
 .garden-slot:hover { border-color: #81c784; }
-.cat-in-slot { width: 80%; height: 80%; object-fit: contain; pointer-events: none; position: absolute; }
-.item-in-slot { width: 60%; height: 60%; background-size: contain; background-position: center; background-repeat: no-repeat; pointer-events: none; z-index: -1; }
+.cat-in-slot {
+    width: 80%; height: 80%; object-fit: contain; pointer-events: none; position: absolute;
+    z-index: 2; /* ねこを手前に表示するための設定 */
+}
+.item-in-slot {
+    width: 70%; height: 70%; /* アイテムを少し大きくして見やすくしました */
+    background-size: contain; background-position: center; background-repeat: no-repeat; pointer-events: none;
+    position: absolute; /* 重なり順を正しく設定するために追加 */
+    z-index: 1; /* ねこの後ろに表示するための設定 */
+}
 .slot-text { color: #555; font-weight: 700; pointer-events: none; }
 
 /* もちものエリア */
