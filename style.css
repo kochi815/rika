@@ -148,4 +148,56 @@ h1 { color: var(--accent-color1); }
     background-color: var(--accent-color2); color: #ffffff; /* ← ここを変更しました */
     border: none; border-radius: 10px; cursor: pointer;
     font-weight: 700; /* ← 文字を少し太くして見やすくしました */
+
+/* ねこ詳細モーダル */
+#cat-detail-img {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 15px;
+    background: #f0f8ff;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+#cat-detail-img img {
+    width: 90%;
+    height: 90%;
+    object-fit: contain;
+}
+#cat-detail-name {
+    margin-top: 0;
+    color: var(--accent-color1);
+}
+#cat-detail-description {
+    font-size: 0.9em;
+    min-height: 4em;
+    text-align: left;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+#cat-detail-needs h4 {
+    font-size: 0.8em;
+    color: #555;
+    margin: 10px 0 5px 0;
+}
+.needs-list {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+.needs-item img {
+    width: 40px;
+    height: 40px;
+    background: #f7f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+#close-cat-detail-btn {
+    width: 100%; padding: 12px; margin-top: 20px; font-size: 1.1em;
+    background-color: #ccc; color: var(--primary-text);
+    border: none; border-radius: 10px; cursor: pointer;
+    font-weight: 700;
+}
+
